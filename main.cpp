@@ -1,0 +1,136 @@
+#include "include\boilerPlate.h"
+#include "include\Recorder.h"
+#include "collisionSim2D-3D/general.h"
+#include "collisionSim2D-3D/grid.h"
+#include "collisionSim2D-3D/particle.h"
+
+
+using namespace std;
+
+//early initialisation of static variable
+
+
+
+
+int main() {
+    general Data;
+    
+	int numberOfObjects;
+    unsigned int PBO[2] = {0,0};
+    
+    float maxVel , maxRD , X , Y , Z;
+
+    cout << "number of objects:", cin >> numberOfObjects, cout << "\n";
+    cout << "maximum velocity(m/s):", cin >> maxVel, cout << "\n";
+    cout << "maximum radius(m):", cin >> maxRD, cout << "\n";//look at the unit
+    cout << "MaxX:", cin >> X, cout << "\n";
+    cout << "MaxY:", cin >> Y, cout << "\n";
+    cout << "MaxZ:", cin >> Z, cout << "\n";
+
+	Data.data(numberOfObjects,maxVel,maxRD,X,Y,Z);
+    
+
+    particle* particles = Data.particleArray();
+
+    for (int i = 0; i < numberOfObjects; i++) {
+        particles[i].dataCollector(i);
+    }
+
+    Data.gridAllocator();
+    
+
+	glfwInit();
+	GLFWwindow* window = glfwCreateWindow(1200,800,"CollisionSim", NULL, NULL);
+	glfwMakeContextCurrent(window);
+	functionLoader();
+	windowStrecher(window);
+	glViewport(0,0,1200,800);
+
+	float vertices[] = {
+		0.5f,0.5f,0.0f,
+		-0.5f,0.5f,0.0f,
+		-0.5f,-0.5f,0.0f,
+		0.5f,-0.5f,0.0f
+	};
+
+	unsigned int EBO[] = {
+		0,1,2,
+		2,3,0
+	};
+
+    screenRec(1200, 800, 30, "object_collision", PBO);
+
+	bufferCreater(1);
+	bufferAttacher(0,0,1);
+	bufferData(GL_STATIC_DRAW,vertices,sizeof(vertices),EBO,sizeof(EBO));
+	unsigned int VAO = bufferBinder(0);
+	glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,3*sizeof(float),(void*)0);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(1);
+
+    //i am trying to create a buffer to hold in the data regarding the particle for instance drawing 
+
+    unsigned int instance;
+    glGenBuffers(1, &instance);
+    glBindBuffer(GL_ARRAY_BUFFER, instance);
+    glBufferData(GL_ARRAY_BUFFER, numberOfObjects * sizeof(particle), particles, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(2 , 3 , GL_FLOAT , GL_FALSE , sizeof(particle) , (void*)8 );
+    glEnableVertexAttribArray(2);
+    glVertexAttribDivisor(2, 1);
+
+    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(particle), (void*)0);
+    glEnableVertexAttribArray(3);
+    glVertexAttribDivisor(3,1);
+
+    glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(particle), (void*)20);
+    glEnableVertexAttribArray(4);
+    glVertexAttribDivisor(4, 1);
+
+	string vertexShader = readShaderFile("vshader.txt");
+	string fragmentShader = readShaderFile("fshader.txt");
+	const char* vcode = vertexShader.c_str();
+	const char* fcode = fragmentShader.c_str();
+	const char* shaderCode[] = {vcode , fcode};
+	unsigned int shaderProgram = glCompileShaders(2,shaderCode);
+	glUseProgram(shaderProgram);
+
+    isRecord(1);
+	
+	while (!glfwWindowShouldClose(window)) {
+		glClearColor(0.0,0.0,0.0,1.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+        
+		for (int n = 0; n < numberOfObjects; n++) {
+
+            particles[n].divisionCalculator();// calculate the division at which the center of the ball is present
+
+            particles[n].painter();//paint that entire spanning square
+            
+            particles[n].changePosition();// changes the position
+
+            particles[n].changeVelocity();// changes the velocity if crossin the border
+		}
+
+        glBindBuffer(GL_ARRAY_BUFFER, instance);
+        glBufferData(GL_ARRAY_BUFFER , numberOfObjects * sizeof(particle), particles, GL_STATIC_DRAW);
+
+        glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 , numberOfObjects);
+
+        bufferReader(PBO);
+        ifRecord(1, PBO);
+        
+        Data.cleanGrid();
+		screen(window);
+		
+	}
+
+    delete[]particles ;
+    Data.deleteGrid();
+    isRecord(0);
+	glfwTerminate();
+	return 0;
+}
+
