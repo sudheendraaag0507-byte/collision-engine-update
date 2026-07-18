@@ -1,0 +1,30 @@
+#version 330 core 
+
+in vec2 locPos;
+flat in float nVel ;
+
+out vec4 fragColor;
+
+void main(){
+    float x = clamp(nVel, 0.0f, 1.0f); 
+
+    
+    float r = clamp(1.0f - (10*x * 1.5f), 0.0f, 1.0f);
+
+    
+    float g = clamp(1.0f - 4.0f * (10*x - 0.5f) * (10*x - 0.5f), 0.0f, 1.0f);
+    
+    if (x > 0.5f) g = 1.0f; 
+
+    
+    float b = clamp((10*x - 0.2f) * 1.25f, 0.0f, 1.0f);
+
+    
+    fragColor = vec4(r, g, b, 1.0f);
+
+    
+    float distance = locPos.x * locPos.x + locPos.y * locPos.y;
+    if (distance > 0.25f){
+        discard;
+    }
+}

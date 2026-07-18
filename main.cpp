@@ -9,9 +9,6 @@ using namespace std;
 
 //early initialisation of static variable
 
-
-
-
 int main() {
     general Data;
     
@@ -22,23 +19,21 @@ int main() {
 
     cout << "number of objects:", cin >> numberOfObjects, cout << "\n";
     cout << "maximum velocity(m/s):", cin >> maxVel, cout << "\n";
-    cout << "maximum radius(m):", cin >> maxRD, cout << "\n";//look at the unit
+    cout << "maximum radius(m):", cin >> maxRD, cout << "\n";
     cout << "MaxX:", cin >> X, cout << "\n";
     cout << "MaxY:", cin >> Y, cout << "\n";
     cout << "MaxZ:", cin >> Z, cout << "\n";
 
 	Data.data(numberOfObjects,maxVel,maxRD,X,Y,Z);
-    
 
     particle* particles = Data.particleArray();
 
     for (int i = 0; i < numberOfObjects; i++) {
         particles[i].dataCollector(i);
     }
-
+    
     Data.gridAllocator();
     
-
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(1200,800,"CollisionSim", NULL, NULL);
 	glfwMakeContextCurrent(window);
@@ -53,14 +48,31 @@ int main() {
 		0.5f,-0.5f,0.0f
 	};
 
+    float box[] = {
+        -1.0f,1.0f,1.0f,
+        -1.0f,1.0,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f,-1.0f,1.0f,
+         1.0f,1.0f,1.0f,
+         1.0f,1.0f,-1.0f,
+         1.0f,-1.0f,-1.0f,
+         1.0f,-1.0f,1.0f,
+    };
+
 	unsigned int EBO[] = {
 		0,1,2,
 		2,3,0
 	};
 
+    unsigned int boxEBO[] = {
+        0,1 ,1,2 ,2,3 ,3,0,
+        4,5 ,5,6 ,6,7 ,7,4,
+        1,5 ,2,6 ,3,7 ,0,4
+    };
+
     screenRec(1200, 800, 30, "object_collision", PBO);
 
-	bufferCreater(1);
+	bufferCreater(2);
 	bufferAttacher(0,0,1);
 	bufferData(GL_STATIC_DRAW,vertices,sizeof(vertices),EBO,sizeof(EBO));
 	unsigned int VAO = bufferBinder(0);
@@ -88,6 +100,13 @@ int main() {
     glEnableVertexAttribArray(4);
     glVertexAttribDivisor(4, 1);
 
+    bufferAttacher(1, 1, 1);
+    bufferData(GL_STATIC_DRAW, box, sizeof(box), boxEBO, sizeof(boxEBO));
+    unsigned int boxVAO = bufferBinder(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+
 	string vertexShader = readShaderFile("vshader.txt");
 	string fragmentShader = readShaderFile("fshader.txt");
 	const char* vcode = vertexShader.c_str();
@@ -96,11 +115,20 @@ int main() {
 	unsigned int shaderProgram = glCompileShaders(2,shaderCode);
 	glUseProgram(shaderProgram);
 
+    //projection matrix 
+
+    mat4 proj = perspective(radians(45.0f),1200.0f/800.0f,0.1f,100.0f);
+    mat4 view = translate(mat4(1.0f) , vec3(0.0f , 0.0f , -5.0f));
+    unsigned int loc1 = glGetUniformLocation(shaderProgram, "view");
+    unsigned int loc0 = glGetUniformLocation(shaderProgram , "projection");
+    unsigned int loc2 = glGetUniformLocation(shaderProgram, "is_box");
+    
     isRecord(1);
-	
+    
+    glEnable(GL_DEPTH_TEST);
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(0.0,0.0,0.0,1.0);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
         
 		for (int n = 0; n < numberOfObjects; n++) {
@@ -114,10 +142,24 @@ int main() {
             particles[n].changeVelocity();// changes the velocity if crossin the border
 		}
 
+        
+        glBindVertexArray(VAO);
+
         glBindBuffer(GL_ARRAY_BUFFER, instance);
         glBufferData(GL_ARRAY_BUFFER , numberOfObjects * sizeof(particle), particles, GL_STATIC_DRAW);
 
+        glUniformMatrix4fv(loc0 , 1 , GL_FALSE , value_ptr(proj));
+        glUniformMatrix4fv(loc1, 1, GL_FALSE, value_ptr(view));
+        glUniform1f(loc2 , 0);
         glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 , numberOfObjects);
+
+        
+        glBindVertexArray(boxVAO);
+
+        glUniformMatrix4fv(loc0, 1, GL_FALSE, value_ptr(proj));
+        glUniformMatrix4fv(loc1, 1, GL_FALSE, value_ptr(view));
+        glUniform1f(loc2 , 1);
+        glDrawElements(GL_LINES , 24 , GL_UNSIGNED_INT , nullptr);
 
         bufferReader(PBO);
         ifRecord(1, PBO);

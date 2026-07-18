@@ -1,7 +1,9 @@
+#include <iostream>
 #include "include/boilerPlate.h"
 #include "general.h"
 #include "particle.h"
 #include "grid.h"
+
 
     vec3& particle::vel() {
         return velocity;
@@ -25,10 +27,13 @@
 
         float shiftedPositionX = position.x + 1.0;
         float shiftedPositionY = position.y + 1.0;
+        float shiftedPositionZ = position.z + 1.0;
 
         divisonX = (maxDivison)*shiftedPositionX;
 
         divisonY = (maxDivison)*shiftedPositionY;// 8 is used in order to decrease the grid size
+
+        divisonZ = (maxDivison)*shiftedPositionY;
     }
 
     // this function fills the individual cells present inside the grid based on the balls position
@@ -61,7 +66,7 @@
         if (smallest_radii > particles[i].radius) {
             smallest_radii = particles[i].radius;
         }
-
+    
         ballNumber = i;
     }
 
@@ -74,21 +79,28 @@
         if ((position.y >= 1 - radius || position.y <= -1 + radius) && (dot(velocity.y, position.y) > 0)) {
             velocity.y *= (-1);
         }
+
+        if ((position.z >= 1 - radius || position.z <= -1 + radius) && (dot(velocity.z, position.z) > 0)) {
+            velocity.z *= (-1);
+        }
     }
 
     void particle::changePosition() {
         position.x += velocity.x * (0.1);
         position.y += velocity.y * (0.1);
-        //need to include for z
+        position.z += velocity.z * (0.1);
     }
 
     void particle::painter() {
         int scale = (radius * maxDivison);
 
+        //change this , carefull!!!
+        
         for (int i = std::max(divisonX - scale, 0); i <= std::min(divisonX + scale, 2 * maxDivison - 1); i++) {
             for (int j = std::max(divisonY - scale, 0); j <= std::min(divisonY + scale, 2 * maxDivison - 1); j++) {
-
-                (cell + i + 2 * j * maxDivison)->fill(ballNumber, i, j);
+                for (int k = std::max(divisonZ - scale, 0); k <= std::min(divisonZ + scale, 2 * maxDivison - 1); k++){
+                    (cell + i + 2 * j * maxDivison + 4 * maxDivison * maxDivison * k )->fill(ballNumber);
+                }
             }
         }
         cell->cleanlist();

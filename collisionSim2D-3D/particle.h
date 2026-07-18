@@ -9,7 +9,7 @@ protected:
     float mass = 0.0f;
     vec3 position = vec3(0.0f, 0.0f, 0.0f);
     vec3 velocity = vec3(0.0f, 0.0f, 0.0f);
-    int divisonX = 0, divisonY = 0;
+    int divisonX = 0, divisonY = 0 , divisonZ = 0;
     int ballNumber = 0;
 
 public:

@@ -15,7 +15,7 @@ public:
     // this function clears the list after drawing each and every ball
     void cleanlist() ;
     // fills the cells for a given particles
-    void fill(int a, int k, int j) ;
+    void fill(int a) ;
 
     void clean() ;
 };

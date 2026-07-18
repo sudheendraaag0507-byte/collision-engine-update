@@ -11,7 +11,7 @@
         newBall.clear();
     }
     // fills the cells for a given particles
-    void grid::fill(int a, int k, int j) {
+    void grid::fill(int a) {
 
         if (box.size() == 0) {
             box.push_back(a);
@@ -21,7 +21,9 @@
             bool is_hitting;
             for (int i : box) {
                 if (find(newBall.begin(), newBall.end(), i) == newBall.end()) {
+
                     newBall.push_back(i);
+
                     is_hitting = radiiMath(particles[a].pos(), particles[i].pos(), particles[a].rad(), particles[i].rad());
 
 
