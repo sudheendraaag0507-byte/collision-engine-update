@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 class grid ;
 class general ;
 
@@ -11,8 +12,11 @@ protected:
     vec3 velocity = vec3(0.0f, 0.0f, 0.0f);
     int divisonX = 0, divisonY = 0 , divisonZ = 0;
     int ballNumber = 0;
+    static float maxM ;
 
 public:
+
+    float maxm();
 
     vec3& vel();
 

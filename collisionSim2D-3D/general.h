@@ -17,8 +17,7 @@ protected:
     static particle* particles;
 
 public:
-
-
+    
     void data(int n, float Vel, float Radius, float X, float Y, float Z);
 
     static particle* particleArray();

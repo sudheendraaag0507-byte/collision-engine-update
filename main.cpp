@@ -4,8 +4,16 @@
 #include "collisionSim2D-3D/grid.h"
 #include "collisionSim2D-3D/particle.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "implot.h"
 
 using namespace std;
+
+namespace plt = ImGui ;
+
+mat4 controlsFunction(GLFWwindow* window) ;
 
 //early initialisation of static variable
 
@@ -33,6 +41,7 @@ int main() {
     }
     
     Data.gridAllocator();
+    std::vector<float> velocities ;
     
 	glfwInit();
 	GLFWwindow* window = glfwCreateWindow(1200,800,"CollisionSim", NULL, NULL);
@@ -40,6 +49,16 @@ int main() {
 	functionLoader();
 	windowStrecher(window);
 	glViewport(0,0,1200,800);
+
+    ImGui::CreateContext();
+    ImPlot::CreateContext();
+
+    // Set default dark theme
+    ImGui::StyleColorsDark();
+
+    // Initialize GLFW and OpenGL3 backends for ImGui
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
 
 	float vertices[] = {
 		0.5f,0.5f,0.0f,
@@ -70,7 +89,7 @@ int main() {
         1,5 ,2,6 ,3,7 ,0,4
     };
 
-    screenRec(1200, 800, 30, "object_collision", PBO);
+    screenRec(1200, 800, 60, "object_collision", PBO);
 
 	bufferCreater(2);
 	bufferAttacher(0,0,1);
@@ -113,23 +132,39 @@ int main() {
 	const char* fcode = fragmentShader.c_str();
 	const char* shaderCode[] = {vcode , fcode};
 	unsigned int shaderProgram = glCompileShaders(2,shaderCode);
-	glUseProgram(shaderProgram);
+	
 
     //projection matrix 
 
     mat4 proj = perspective(radians(45.0f),1200.0f/800.0f,0.1f,100.0f);
-    mat4 view = translate(mat4(1.0f) , vec3(0.0f , 0.0f , -5.0f));
+    mat4 view ;
     unsigned int loc1 = glGetUniformLocation(shaderProgram, "view");
     unsigned int loc0 = glGetUniformLocation(shaderProgram , "projection");
     unsigned int loc2 = glGetUniformLocation(shaderProgram, "is_box");
+    unsigned int loc3 = glGetUniformLocation(shaderProgram, "lightPos");
+    glUseProgram(shaderProgram);
     
     isRecord(1);
     
     glEnable(GL_DEPTH_TEST);
+
+    
 	while (!glfwWindowShouldClose(window)) {
+        
 		glClearColor(0.0,0.0,0.0,1.0);
 		glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 
+        //frame initialisation
+        ImGui_ImplOpenGL3_NewFrame();
+
+        ImGui_ImplGlfw_NewFrame();
+        
+        plt::NewFrame();
+
+        plt::Begin("Maxwell_Boltzman_distribution");
+
+        
+        
         
 		for (int n = 0; n < numberOfObjects; n++) {
 
@@ -140,14 +175,29 @@ int main() {
             particles[n].changePosition();// changes the position
 
             particles[n].changeVelocity();// changes the velocity if crossin the border
+
+            velocities.push_back(0.5* particles[n].m()*dot(particles[n].vel(),particles[n].vel()));
 		}
 
+        if (ImPlot::BeginPlot("Maxwell_boltzmann_distribution", ImVec2(-1.0f, 300.0f))) {
+            ImPlot::SetupAxes("Kinetic_Energy", "Fraction_of_particles", ImPlotAxisFlags_None , ImPlotAxisFlags_AutoFit);
+            ImPlot::SetupAxisLimits(ImAxis_X1, 0.0f,0.2f, ImGuiCond_Once);
+            ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0f, numberOfObjects, ImGuiCond_Once);
+            
+            ImPlot::PlotHistogram("Particles",velocities.data(), numberOfObjects, 100 );
+            ImPlot::EndPlot();
+        };
+
+        
+
+        plt::End();
+        glUniform3fv(loc3 , 1 , value_ptr(vec3(0.0f,0.0f,0.0f)));
         
         glBindVertexArray(VAO);
-
+        view = controlsFunction(window);
+        
         glBindBuffer(GL_ARRAY_BUFFER, instance);
         glBufferData(GL_ARRAY_BUFFER , numberOfObjects * sizeof(particle), particles, GL_STATIC_DRAW);
-
         glUniformMatrix4fv(loc0 , 1 , GL_FALSE , value_ptr(proj));
         glUniformMatrix4fv(loc1, 1, GL_FALSE, value_ptr(view));
         glUniform1f(loc2 , 0);
@@ -155,8 +205,6 @@ int main() {
 
         
         glBindVertexArray(boxVAO);
-
-        glUniformMatrix4fv(loc0, 1, GL_FALSE, value_ptr(proj));
         glUniformMatrix4fv(loc1, 1, GL_FALSE, value_ptr(view));
         glUniform1f(loc2 , 1);
         glDrawElements(GL_LINES , 24 , GL_UNSIGNED_INT , nullptr);
@@ -165,9 +213,19 @@ int main() {
         ifRecord(1, PBO);
         
         Data.cleanGrid();
+
+        plt::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(plt::GetDrawData());
+
 		screen(window);
+        velocities.clear();
 		
 	}
+    
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImPlot::DestroyContext();
+    ImGui::DestroyContext();
 
     delete[]particles ;
     Data.deleteGrid();

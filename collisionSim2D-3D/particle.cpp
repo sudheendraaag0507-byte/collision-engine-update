@@ -3,7 +3,12 @@
 #include "general.h"
 #include "particle.h"
 #include "grid.h"
+    
+    float particle::maxM = 0.0f;
 
+    float particle::maxm() {
+        return maxM;
+    }
 
     vec3& particle::vel() {
         return velocity;
@@ -66,6 +71,10 @@
         if (smallest_radii > particles[i].radius) {
             smallest_radii = particles[i].radius;
         }
+
+        if (maxM < particles[i].mass) {
+            maxM = particles[i].mass;
+        }
     
         ballNumber = i;
     }
@@ -83,6 +92,7 @@
         if ((position.z >= 1 - radius || position.z <= -1 + radius) && (dot(velocity.z, position.z) > 0)) {
             velocity.z *= (-1);
         }
+
     }
 
     void particle::changePosition() {

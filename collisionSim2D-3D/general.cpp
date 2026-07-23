@@ -15,7 +15,7 @@
     float general::maxZ = 0.0f;
     int general::maxDivison = 0;
     float general::smallest_radii = INT_MAX;
-
+    
 
     // here is where i tore all the info related to the simulation grid
 
