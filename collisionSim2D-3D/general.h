@@ -6,6 +6,10 @@ class particle;
 
 // here is where i store all the info related to the simulation grid
 class general {
+
+friend particle;
+friend grid;
+
 protected:
     static int numberOfParticle;
     static float maxVelocity;

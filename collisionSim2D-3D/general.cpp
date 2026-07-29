@@ -4,6 +4,7 @@
 #include "general.h"
 #include "particle.h"
 #include "grid.h"
+#include "omp.h"
 
 
 
@@ -130,9 +131,12 @@ void general::gridAllocator() {
     
     cell = new grid[8 * maxDivison * maxDivison * maxDivison]; // using 1D array to avoid cache miss
     
+    std::cout << "this is size of all the voxels combined:" << 8 * maxDivison * maxDivison * maxDivison * sizeof(cell[0]) << "\n";
+
 }
 
 void general::cleanGrid() {
+    #pragma omp parallel for 
     for (int i = 0; i < 8 * maxDivison * maxDivison * maxDivison; i++) {
         cell[i].clean();
     }

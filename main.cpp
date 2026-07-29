@@ -8,6 +8,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "implot.h"
+#include <omp.h>
 
 using namespace std;
 
@@ -41,6 +42,9 @@ int main() {
     }
     
     Data.gridAllocator();
+
+    
+
     std::vector<float> velocities ;
     
 	glfwInit();
@@ -50,6 +54,7 @@ int main() {
 	windowStrecher(window);
 	glViewport(0,0,1200,800);
 
+    
     ImGui::CreateContext();
     ImPlot::CreateContext();
 
@@ -90,6 +95,7 @@ int main() {
     };
 
     screenRec(1200, 800, 60, "object_collision", PBO);
+    
 
 	bufferCreater(2);
 	bufferAttacher(0,0,1);
@@ -164,22 +170,21 @@ int main() {
         plt::Begin("Maxwell_Boltzman_distribution");
 
         
-        
-        
-		for (int n = 0; n < numberOfObjects; n++) {
-
+        for (int n = 0; n < numberOfObjects; n++) {
+            
             particles[n].divisionCalculator();// calculate the division at which the center of the ball is present
 
             particles[n].painter();//paint that entire spanning square
-            
+
             particles[n].changePosition();// changes the position
 
             particles[n].changeVelocity();// changes the velocity if crossin the border
 
-            velocities.push_back(0.5* particles[n].m()*dot(particles[n].vel(),particles[n].vel()));
-		}
-
+            velocities.push_back(0.5 * particles[n].m() * dot(particles[n].vel(), particles[n].vel()));
+        }
+        
         if (ImPlot::BeginPlot("Maxwell_boltzmann_distribution", ImVec2(-1.0f, 300.0f))) {
+            ImGui::Text("frame rate : %.2f" , ImGui::GetIO().Framerate);
             ImPlot::SetupAxes("Kinetic_Energy", "Fraction_of_particles", ImPlotAxisFlags_None , ImPlotAxisFlags_AutoFit);
             ImPlot::SetupAxisLimits(ImAxis_X1, 0.0f,0.2f, ImGuiCond_Once);
             ImPlot::SetupAxisLimits(ImAxis_Y1, 0.0f, numberOfObjects, ImGuiCond_Once);
@@ -193,22 +198,24 @@ int main() {
         plt::End();
         glUniform3fv(loc3 , 1 , value_ptr(vec3(0.0f,0.0f,0.0f)));
         
+        
         glBindVertexArray(VAO);
         view = controlsFunction(window);
         
         glBindBuffer(GL_ARRAY_BUFFER, instance);
         glBufferData(GL_ARRAY_BUFFER , numberOfObjects * sizeof(particle), particles, GL_STATIC_DRAW);
+        
         glUniformMatrix4fv(loc0 , 1 , GL_FALSE , value_ptr(proj));
         glUniformMatrix4fv(loc1, 1, GL_FALSE, value_ptr(view));
         glUniform1f(loc2 , 0);
         glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0 , numberOfObjects);
-
         
         glBindVertexArray(boxVAO);
         glUniformMatrix4fv(loc1, 1, GL_FALSE, value_ptr(view));
         glUniform1f(loc2 , 1);
         glDrawElements(GL_LINES , 24 , GL_UNSIGNED_INT , nullptr);
 
+        
         bufferReader(PBO);
         ifRecord(1, PBO);
         
@@ -219,6 +226,7 @@ int main() {
 
 		screen(window);
         velocities.clear();
+        
 		
 	}
     

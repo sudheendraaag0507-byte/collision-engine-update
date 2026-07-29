@@ -3,9 +3,10 @@
 #include "general.h"
 #include "particle.h"
 #include "grid.h"
-    
-    float particle::maxM = 0.0f;
+#include "omp.h"
 
+    float particle::maxM = 0.0f;
+    
     float particle::maxm() {
         return maxM;
     }
@@ -34,11 +35,11 @@
         float shiftedPositionY = position.y + 1.0;
         float shiftedPositionZ = position.z + 1.0;
 
-        divisonX = (maxDivison)*shiftedPositionX;
+        divisonX = (general::maxDivison)*shiftedPositionX;
 
-        divisonY = (maxDivison)*shiftedPositionY;// 8 is used in order to decrease the grid size
+        divisonY = (general::maxDivison)*shiftedPositionY;// 8 is used in order to decrease the grid size
 
-        divisonZ = (maxDivison)*shiftedPositionY;
+        divisonZ = (general::maxDivison)*shiftedPositionZ;
     }
 
     // this function fills the individual cells present inside the grid based on the balls position
@@ -46,34 +47,34 @@
 
     void particle::dataCollector(int i) {
         std::cout << "mass of object (KG) " << i + 1 << ":";
-        std::cin >> particles[i].mass, std::cout << "\n";
+        std::cin >> general::particles[i].mass, std::cout << "\n";
         std::cout << "velocity of object " << i + 1 << ":\n";
-        std::cout << "X:", std::cin >> particles[i].velocity.x, std::cout << "\n";
-        std::cout << "Y:", std::cin >> particles[i].velocity.y, std::cout << "\n";
-        std::cout << "Z:", std::cin >> particles[i].velocity.z, std::cout << "\n";
+        std::cout << "X:", std::cin >> general::particles[i].velocity.x, std::cout << "\n";
+        std::cout << "Y:", std::cin >> general::particles[i].velocity.y, std::cout << "\n";
+        std::cout << "Z:", std::cin >> general::particles[i].velocity.z, std::cout << "\n";
         std::cout << "position of object " << i + 1 << ":\n";
-        std::cout << "X:", std::cin >> particles[i].position.x, std::cout << "\n";
-        std::cout << "Y:", std::cin >> particles[i].position.y, std::cout << "\n";
-        std::cout << "Z:", std::cin >> particles[i].position.z, std::cout << "\n";
+        std::cout << "X:", std::cin >> general::particles[i].position.x, std::cout << "\n";
+        std::cout << "Y:", std::cin >> general::particles[i].position.y, std::cout << "\n";
+        std::cout << "Z:", std::cin >> general::particles[i].position.z, std::cout << "\n";
         std::cout << "radius of object " << i + 1 << ":\n";
-        std::cin >> particles[i].radius;
+        std::cin >> general::particles[i].radius;
 
-        particles[i].velocity.x = particles[i].velocity.x / maxVelocity;
-        particles[i].velocity.y = particles[i].velocity.y / maxVelocity;
-        particles[i].velocity.z = particles[i].velocity.z / maxVelocity;
+        general::particles[i].velocity.x = general::particles[i].velocity.x / general::maxVelocity;
+        general::particles[i].velocity.y = general::particles[i].velocity.y / general::maxVelocity;
+        general::particles[i].velocity.z = general::particles[i].velocity.z / general::maxVelocity;
 
-        particles[i].position.x = particles[i].position.x / maxX;
-        particles[i].position.y = particles[i].position.y / maxY;
-        particles[i].position.z = particles[i].position.z / maxZ;
+        general::particles[i].position.x = general::particles[i].position.x / general::maxX;
+        general::particles[i].position.y = general::particles[i].position.y / general::maxY;
+        general::particles[i].position.z = general::particles[i].position.z / general::maxZ;
 
-        particles[i].radius = particles[i].radius / maxRadius;
+        general::particles[i].radius = general::particles[i].radius / general::maxRadius;
 
-        if (smallest_radii > particles[i].radius) {
-            smallest_radii = particles[i].radius;
+        if (general::smallest_radii > general::particles[i].radius) {
+            general::smallest_radii = general::particles[i].radius;
         }
 
-        if (maxM < particles[i].mass) {
-            maxM = particles[i].mass;
+        if (maxM < general::particles[i].mass) {
+            maxM = general::particles[i].mass;
         }
     
         ballNumber = i;
@@ -102,18 +103,33 @@
     }
 
     void particle::painter() {
-        int scale = (radius * maxDivison);
+        int scale = (radius * general::maxDivison);
 
-        //change this , carefull!!!
+        int i_start = std::max(divisonX - scale, 0);
+        int i_end = std::min(divisonX + scale, 2 * general::maxDivison - 1);
+
+        int j_start = std::max(divisonY - scale, 0);
+        int j_end = std::min(divisonY + scale, 2 * general::maxDivison - 1);
+
+        int k_start = std::max(divisonZ - scale, 0);
+        int k_end = std::min(divisonZ + scale, 2 * general::maxDivison - 1);
+
         
-        for (int i = std::max(divisonX - scale, 0); i <= std::min(divisonX + scale, 2 * maxDivison - 1); i++) {
-            for (int j = std::max(divisonY - scale, 0); j <= std::min(divisonY + scale, 2 * maxDivison - 1); j++) {
-                for (int k = std::max(divisonZ - scale, 0); k <= std::min(divisonZ + scale, 2 * maxDivison - 1); k++){
-                    (cell + i + 2 * j * maxDivison + 4 * maxDivison * maxDivison * k )->fill(ballNumber);
+        
+        for (int i = i_start; i <= i_end; i++) {
+            for (int j = j_start; j <= j_end; j++) {
+                for (int k = k_start; k <= k_end; k++) {
+                    float rhs = (i - divisonX) * (i - divisonX) + (j - divisonY) * (j - divisonY) + (k - divisonZ) * (k - divisonZ) ;
+                    float lhs = scale * scale ;
+                    
+                    if (lhs >= rhs ) {
+                            (general::cell + i + 2 * j * general::maxDivison + 4 * general::maxDivison * general::maxDivison * k)->fill(ballNumber);
+                    }
                 }
             }
         }
-        cell->cleanlist();
+
+        general::cell->cleanlist();
     }
 
 particle* general::particles = nullptr;

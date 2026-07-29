@@ -12,7 +12,7 @@
     }
     // fills the cells for a given particles
     void grid::fill(int a) {
-
+         
         if (box.size() == 0) {
             box.push_back(a);
         }
@@ -24,16 +24,16 @@
 
                     newBall.push_back(i);
 
-                    is_hitting = radiiMath(particles[a].pos(), particles[i].pos(), particles[a].rad(), particles[i].rad());
+                    is_hitting = general::radiiMath(general::particles[a].pos(), general::particles[i].pos(), general::particles[a].rad(), general::particles[i].rad());
 
 
                     if (is_hitting) {
 
 
-                        vec3 Prel = particles[a].pos() - particles[i].pos();
+                        vec3 Prel = general::particles[a].pos() - general::particles[i].pos();
 
 
-                        vec3 Vrel = (particles[a].vel()) - (particles[i].vel());
+                        vec3 Vrel = (general::particles[a].vel()) - (general::particles[i].vel());
                         //cout << Vrel.x << Vrel.y << Vrel.z << "\n";
 
                         float Ds = dot(Vrel, Prel);
@@ -42,18 +42,21 @@
                         //cout << Ds << " " << ((particles[a].vel()) - (particles[i].vel())).x << " " << ((particles[a].vel()) - (particles[i].vel())).y << " " << a << " " << i << "<------this is already got hit\n";
                         //else cout << Ds <<" " << ((particles[a].vel()) - (particles[i].vel())).x << " " << ((particles[a].vel()) - (particles[i].vel())).y << " grid no :" << k << " " << j << " " << a << " " << i << "<-------this about to !!  \n";
 
-                        collisionMath(Ds, particles[a].m(), particles[i].m(), value_ptr(particles[a].vel()), value_ptr(particles[i].vel()), particles[a].pos(), particles[i].pos());
+                        general::collisionMath(Ds, general::particles[a].m(), general::particles[i].m(), value_ptr(general::particles[a].vel()), value_ptr(general::particles[i].vel()), general::particles[a].pos(), general::particles[i].pos());
                     }
                 }
             }
             box.push_back(a);
         }
 
-    }
+  }
 
-    void grid::clean() {
-        box.clear();
-    }
+    
+    
+void grid::clean() {
+       box.clear();
+}
+    
 
 grid* general::cell = nullptr;
 list<int> grid::newBall = { -1 };

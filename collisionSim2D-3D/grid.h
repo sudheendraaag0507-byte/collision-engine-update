@@ -4,7 +4,11 @@
 class particle ;
 class general ;
 
-class grid :general {
+class grid {
+
+friend particle;
+friend general;
+
 private:
     // this is a list dedicated for each cell for knowing how many balls had filled the same cell
     std::list<int> box;

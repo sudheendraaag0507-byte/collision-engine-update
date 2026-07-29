@@ -4,8 +4,13 @@
 class grid ;
 class general ;
 
-class particle :general {
+class particle{
+
+friend grid ;
+friend general;
+
 protected:
+    
     float radius = 0.0f;
     float mass = 0.0f;
     vec3 position = vec3(0.0f, 0.0f, 0.0f);
@@ -13,7 +18,7 @@ protected:
     int divisonX = 0, divisonY = 0 , divisonZ = 0;
     int ballNumber = 0;
     static float maxM ;
-
+    
 public:
 
     float maxm();
