@@ -1,0 +1,55 @@
+#version 330 core 
+
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec2 aLoc;
+layout(location = 2) in vec3 pPos;
+layout(location = 3) in float rad;
+layout(location = 4) in vec3 pVel;
+
+uniform mat4 projection;
+uniform mat4 view;
+uniform float is_box;
+uniform vec3 lightPos;
+
+out vec2 locPos;
+out vec3 changed_coordinate;
+flat out float nVel;
+flat out float box;
+flat out float radius;
+flat out vec3 srcPos;
+flat out vec3 particlePos;
+
+void main() {
+    vec3 finalPosition;
+
+    mat4 mat = mat4(
+        vec4(2.0f * rad, 0.0f,       0.0f,       0.0f),
+        vec4(0.0f,       2.0f * rad, 0.0f,       0.0f),
+        vec4(0.0f,       0.0f,       2.0f * rad, 0.0f),
+        vec4(0.0f,       0.0f,       0.0f,       1.0f)
+    );
+
+    mat4 translate = mat4(
+        vec4(1.0f,   0.0f,   0.0f,   0.0f),
+        vec4(0.0f,   1.0f,   0.0f,   0.0f),
+        vec4(0.0f,   0.0f,   1.0f,   0.0f),
+        vec4(pPos.x, pPos.y, pPos.z, 1.0f)
+    );
+
+    mat4 pv = projection * view;
+
+    if (is_box == 1.0f) {
+        gl_Position = pv * vec4(aPos, 1.0f);
+    } else {
+        finalPosition = vec3(view * vec4(pPos, 1.0f));
+        gl_Position = projection * vec4(finalPosition + vec3(mat * vec4(aPos, 1.0f)), 1.0f);
+    }
+
+    locPos = aLoc;
+    box = is_box;
+    nVel = length(pVel) / 1.73f;
+    srcPos = lightPos;
+    changed_coordinate = finalPosition + vec3(mat * vec4(aPos, 1.0f));
+    radius = rad; 
+    particlePos = vec3((view * vec4(pPos, 1.0f)).xyz);
+}
