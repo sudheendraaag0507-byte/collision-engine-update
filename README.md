@@ -171,7 +171,7 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release
 ##### Build the executable using all available CPU cores:
 
 ```text
-cmake --build build --config Release -j$(nproc)
+cmake --build build --config Release -j
 ```
 
 ##### (On Windows PowerShell where nproc is unavailable, run cmake --build build --config Release -j)
