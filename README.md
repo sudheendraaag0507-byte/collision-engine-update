@@ -7,7 +7,7 @@ A real-time 3D particle physics simulation built with C++17, OpenGL, OpenMP, GLF
 ## Visuals & Simulation Demo
 
 ### YouTube Walkthrough
-[![3D Collision Engine Simulation](https://img.youtube.com/vi/YOUR_YOUTUBE_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_YOUTUBE_VIDEO_ID "Click to watch simulation on YouTube")
+[![3D Collision Engine Simulation](https://www.youtube.com/watch?v=YOUR_YOUTUBE_VIDEO_ID "Click to watch simulation on YouTube")
 
 > **Note:** Replace `YOUR_YOUTUBE_VIDEO_ID` with your actual YouTube video ID (e.g., in `https://www.youtube.com/watch?v=dQw4w9WgXcQ`, the ID is `dQw4w9WgXcQ`).
 
