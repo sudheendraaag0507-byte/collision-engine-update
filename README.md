@@ -144,6 +144,9 @@ Clone recursively so Git downloads the embedded vendor/vcpkg submodule:
 
 ```text
 git clone --recursive https://github.com/sudheendraaag0507-byte/collision-engine-update.git
+```
+
+```text 
 cd collision-engine-update
 ```
 --
