@@ -54,7 +54,7 @@ Simulating over 500 particles introduced quantum tunneling (the "bullet effect")
 This was solved through two key optimizations:
 1. **Sub-Stepping ($\Delta t = 0.1\text{s}$):** Decoupling fixed physics updates from variable frame rates eliminated position teleportation, scaling simulation capacity to 5,000+ particles.
 2. **Relative Dot Product Filtering:** To stop particles from sticking together, candidate collisions are checked via relative velocity and position vectors:
-   $$\mathbf{v}_{\text{rel}} \cdot \mathbf{r}_{\text{rel}} < 0$$
+   
    If the dot product is positive, the particles are moving apart and collision handling is skipped, replacing nested conditional branches with a single vector operation.
 
 ### 5. Instanced Rendering via VBOs
@@ -143,7 +143,7 @@ collision-engine-update/
 Clone recursively so Git downloads the embedded vendor/vcpkg submodule:
 
 ```text
-git clone --recursive [https://github.com/sudheendraaag0507-byte/collision-engine-update.git](https://github.com/sudheendraaag0507-byte/collision-engine-update.git)
+git clone --recursive https://github.com/sudheendraaag0507-byte/collision-engine-update.git
 cd collision-engine-update
 ```
 --
