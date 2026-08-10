@@ -1,8 +1,9 @@
 # 3D Collision Simulator Engine
 
 A real-time 3D particle physics simulation built with C++17, OpenGL, OpenMP, GLFW, Dear ImGui, and ImPlot. The engine features multi-threaded lock-free spatial grid hashing, instanced shader rendering, ray-marched sphere impostors, sub-stepped collision mechanics, and real-time statistical analytics.
+--- 
 
-##DISCLAIMER :
+## DISCLAIMER :
  - the data regarding the fps claimed below differs according to different laptops based on the CPU series and versions .
  - the entire engine was run and tested on [13th Gen Intel(R) Core(TM) i7-13620H (2.40 GHz)] processor .
 
