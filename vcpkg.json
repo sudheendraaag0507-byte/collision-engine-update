@@ -7,7 +7,6 @@
 		"glad",
 		"imgui",
 		"implot",
-<<<<<<< HEAD
 		"glm",
 		"ffmpeg",
 		"stb",
@@ -18,10 +17,8 @@
 				"opengl3-binding"
 			]
 		}
-=======
 		"opengl" ,
 		"ffmpeg" ,
 		"glm"
->>>>>>> e4230f32a453617b34c5d2b5655c1da28272a23c
 	]
 }
