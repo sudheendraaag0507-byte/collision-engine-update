@@ -2,9 +2,20 @@
 	"name": "collision-engine",
 	"version-string": "1.0.0",
 	"dependencies": [
+		"opengl",
 		"glfw3",
+		"glad",
 		"imgui",
 		"implot",
-		"opengl"
+		"glm",
+		"ffmpeg",
+		"stb",
+		{
+			"name": "imgui",
+			"features": [
+				"glfw-binding",
+				"opengl3-binding"
+			]
+		}
 	]
 }
