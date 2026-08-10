@@ -31,6 +31,18 @@ A real-time 3D particle physics simulation built with C++17, OpenGL, OpenMP, GLF
 
 ---
 
+---
+
+## Basic Tech Requirement 
+
+| Requirement	| Windows	|
+| :--- | :--- |
+| Language and IDE | C++ Compiler	Visual Studio 2019/2022 (with Desktop development with C++)	g++ or clang |
+| Build Generator	| Ninja or Visual Studio MSBuild	Ninja or Make |
+| CMake	| CMake 3.16+ |
+| Git	| Git for Windows 
+| vcpkg | Helpers	PowerShell |
+
 ## The Developer Journey & Technical Evolution
 
 This project was built from scratch to explore low-level graphics programming, concurrency, and systems engineering:
