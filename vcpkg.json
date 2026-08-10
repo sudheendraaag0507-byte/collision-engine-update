@@ -7,7 +7,6 @@
 		"glm",
 		"implot",
 		"stb",
-		"stb",
 		{
 			"name": "imgui",
 			"features": [
