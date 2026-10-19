@@ -15,6 +15,7 @@ layout(location = 4) in vec3 pVel;
 
 uniform mat4 projection;
 uniform mat4 view;
+uniform mat4 scale;
 uniform float is_box;
 uniform vec3 lightPos;
 
@@ -49,14 +50,14 @@ void main() {
         gl_Position = pv * vec4(aPos, 1.0f);
     } else {
         finalPosition = vec3(view * vec4(pPos, 1.0f));
-        gl_Position = projection * vec4(finalPosition + vec3(mat * vec4(aPos, 1.0f)), 1.0f);
+        gl_Position = projection * vec4(finalPosition + vec3(scale * mat * vec4(aPos, 1.0f)), 1.0f);
     }
 
     locPos = aLoc;
     box = is_box;
     nVel = length(pVel) / 1.73f;
     srcPos = lightPos;
-    changed_coordinate = finalPosition + vec3(mat * vec4(aPos, 1.0f));
+    changed_coordinate = projection * vec4(finalPosition + vec3(scale * mat * vec4(aPos, 1.0f)), 1.0f);
     radius = rad; 
     particlePos = vec3((view * vec4(pPos, 1.0f)).xyz);
 }
