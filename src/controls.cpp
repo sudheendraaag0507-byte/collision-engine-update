@@ -5,7 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-glm::mat4 controlsFunction(GLFWwindow* window) {
+std::vector<glm::mat4> controlsFunction(GLFWwindow* window) {
     static float angle = 0.0f;
     static float angle1 = 0.0f;
     static float scl = 1.0f;
@@ -50,5 +50,7 @@ glm::mat4 controlsFunction(GLFWwindow* window) {
         scl -= 0.01f;
     }
 
-    return view;
+    std::vector<glm::mat4> mat = {view , scale};
+
+    return mat;
 }
